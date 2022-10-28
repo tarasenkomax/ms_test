@@ -5,14 +5,16 @@ from studying_process.models import Student, Group, AcademicDiscipline, Directio
 
 class StudentAdmin(admin.ModelAdmin):
     """ Студент """
-    list_display = ("id", "name", "surname")
-    list_display_links = ("id", "name", "surname")
+    list_display = ("id", "name", "surname", "gender", "group")
+    list_display_links = ("id", "name", "surname", "gender", "group")
+    list_filter = ("gender", "group")
 
 
 class GroupAdmin(admin.ModelAdmin):
     """ Учебная группа """
-    list_display = ("id", "title", "max_length")
-    list_display_links = ("id", "title", "max_length")
+    list_display = ("id", "title", "max_length", "direction")
+    list_display_links = ("id", "title", "max_length", "direction")
+    list_filter = ("direction",)
 
 
 class AcademicDisciplineAdmin(admin.ModelAdmin):
@@ -23,9 +25,10 @@ class AcademicDisciplineAdmin(admin.ModelAdmin):
 
 class DirectionOfTrainingAdmin(admin.ModelAdmin):
     """ Направление подготовки """
-    list_display = ("id", "title")
-    list_display_links = ("id", "title")
+    list_display = ("id", "title", "curator")
+    list_display_links = ("id", "title", "curator")
     filter_horizontal = ('disciplines',)
+    list_filter = ("curator",)
 
 
 admin.site.register(Student, StudentAdmin)
