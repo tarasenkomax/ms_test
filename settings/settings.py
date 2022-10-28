@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # 3rd
     'rest_framework',
+    'drf_yasg',
 
     # my_apps
     'studying_process',

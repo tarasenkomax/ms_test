@@ -11,7 +11,7 @@ class Student(models.Model):
     name = models.CharField(max_length=32, verbose_name="Имя")
     surname = models.CharField(max_length=32, verbose_name="Фамилия")
     gender = models.CharField(max_length=16, choices=STUDENT_GENDER, verbose_name='Пол')
-    group = models.ForeignKey('Group', on_delete=models.CASCADE, verbose_name='Учебная группа')
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Учебная группа')
 
     def __str__(self):
         return f"{self.surname} {self.name}"
@@ -25,7 +25,7 @@ class Group(models.Model):
     """ Учебная группа """
     title = models.CharField(max_length=32, verbose_name="Название группы")
     max_length = models.PositiveIntegerField(default=20, verbose_name='Максимальная длина группы')
-    direction = models.ForeignKey('DirectionOfTraining', on_delete=models.CASCADE,
+    direction = models.ForeignKey('DirectionOfTraining', blank=True, null=True, on_delete=models.CASCADE,
                                   verbose_name='Направление подготовки')
 
     def __str__(self):
@@ -51,7 +51,8 @@ class AcademicDiscipline(models.Model):
 class DirectionOfTraining(models.Model):
     """ Направление подготовки """
     title = models.CharField(max_length=32, verbose_name="Название направления")
-    disciplines = models.ManyToManyField('AcademicDiscipline', related_name="disciplines", verbose_name="Дисциплины")
+    disciplines = models.ManyToManyField('AcademicDiscipline', blank=True, null=True, related_name="disciplines",
+                                         verbose_name="Дисциплины")
     curator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Куратор')
 
     def __str__(self):
