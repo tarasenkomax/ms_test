@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from studying_process.models import Student, Group, AcademicDiscipline, DirectionOfTraining
+from studying_process.models import Student, Group, AcademicDiscipline, DirectionOfTraining, Profile
+
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "is_curator")
+    list_filter = ("is_curator",)
 
 
 class StudentAdmin(admin.ModelAdmin):
@@ -35,3 +40,4 @@ admin.site.register(Student, StudentAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(AcademicDiscipline, AcademicDisciplineAdmin)
 admin.site.register(DirectionOfTraining, DirectionOfTrainingAdmin)
+admin.site.register(Profile, ProfileAdmin)

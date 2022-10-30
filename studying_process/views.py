@@ -1,7 +1,8 @@
 from rest_framework import generics, status
-from rest_framework.permissions import IsAdminUser
+from rest_framework import permissions
 from rest_framework.response import Response
 
+from settings.permissions import IsCuratorReadOnly
 from studying_process.models import AcademicDiscipline, DirectionOfTraining
 from studying_process.serializers import AcademicDisciplineSerializer, DirectionOfTrainingSerializer, \
     CreateDirectionOfTrainingSerializer
@@ -12,7 +13,7 @@ class AcademicDisciplineView(generics.ListCreateAPIView):
     (GET) Получение списка учебных дисциплин
     (POST) Добавление учебной дисциплины
     """
-    permission_classes = (IsAdminUser,)
+    permission_classes = [permissions.IsAdminUser | IsCuratorReadOnly]
     serializer_class = AcademicDisciplineSerializer
     queryset = AcademicDiscipline.objects.all()
 
@@ -23,7 +24,7 @@ class AcademicDisciplineDetailView(generics.RetrieveUpdateDestroyAPIView):
     (PUT) Обновление информации
     (DEL) Удаление
     """
-    permission_classes = (IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser,)
     serializer_class = AcademicDisciplineSerializer
     queryset = AcademicDiscipline.objects.all()
     lookup_field = 'id'
@@ -34,7 +35,7 @@ class DirectionOfTrainingView(generics.ListCreateAPIView):
     (GET) Получение списка направлений подготовки
     (POST) Добавление направления подготовки
     """
-    permission_classes = (IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser,)
     queryset = DirectionOfTraining.objects.all()
     serializer_class = CreateDirectionOfTrainingSerializer
 
@@ -49,7 +50,7 @@ class DirectionOfTrainingDetailView(generics.RetrieveUpdateDestroyAPIView):
     (PUT) Добавление дисиплины в направление подготовки
     (DEL) Удаление направления подготовки
     """
-    permission_classes = (IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser,)
     queryset = DirectionOfTraining.objects.all()
     serializer_class = AcademicDisciplineSerializer
     lookup_field = 'id'
@@ -71,7 +72,7 @@ class DeleteDisciplineFromDirectionOfTrainingView(generics.RetrieveUpdateAPIView
     (GET) Получение детальной информации по направлению подготовки
     (PUT) Удаление дисиплины из направления подготовки
     """
-    permission_classes = (IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser,)
     queryset = DirectionOfTraining.objects.all()
     serializer_class = AcademicDisciplineSerializer
     lookup_field = 'id'
