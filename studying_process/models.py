@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -36,7 +37,7 @@ class Student(models.Model):
     name = models.CharField(max_length=32, verbose_name="Имя")
     surname = models.CharField(max_length=32, verbose_name="Фамилия")
     gender = models.CharField(max_length=16, choices=STUDENT_GENDER, verbose_name='Пол')
-    group = models.ForeignKey('Group', on_delete=models.CASCADE, blank=True, null=True, verbose_name='Учебная группа')
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, verbose_name='Учебная группа')
 
     def __str__(self):
         return f"{self.surname} {self.name}"
@@ -50,11 +51,15 @@ class Group(models.Model):
     """ Учебная группа """
     title = models.CharField(max_length=32, unique=True, verbose_name="Название группы")
     max_length = models.PositiveIntegerField(default=20, verbose_name='Максимальная длина группы')
-    direction = models.ForeignKey('DirectionOfTraining', blank=True, null=True, on_delete=models.CASCADE,
+    direction = models.ForeignKey('DirectionOfTraining', on_delete=models.CASCADE,
                                   verbose_name='Направление подготовки')
 
     def __str__(self):
         return self.title
+
+    def get_students(self) -> QuerySet:
+        """ Получение всех студентов группы """
+        return Student.objects.filter(group=self)
 
     class Meta:
         verbose_name_plural = "Учебные группы"
@@ -82,6 +87,8 @@ class DirectionOfTraining(models.Model):
 
     def __str__(self):
         return self.title
+
+    #todo get_groups
 
     class Meta:
         verbose_name_plural = "Направления подготовки"

@@ -3,9 +3,9 @@ from rest_framework import permissions
 from rest_framework.response import Response
 
 from settings.permissions import IsCuratorReadOnly
-from studying_process.models import AcademicDiscipline, DirectionOfTraining
+from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Student
 from studying_process.serializers import AcademicDisciplineSerializer, DirectionOfTrainingSerializer, \
-    CreateDirectionOfTrainingSerializer
+    CreateDirectionOfTrainingSerializer, GroupsSerializer, CreateGroupsSerializer, StudentSerializer
 
 
 class AcademicDisciplineView(generics.ListCreateAPIView):
@@ -13,15 +13,14 @@ class AcademicDisciplineView(generics.ListCreateAPIView):
     (GET) Получение списка учебных дисциплин
     (POST) Добавление учебной дисциплины
     """
-    permission_classes = [permissions.IsAdminUser | IsCuratorReadOnly]
+    permission_classes = (permissions.IsAdminUser,)
     serializer_class = AcademicDisciplineSerializer
     queryset = AcademicDiscipline.objects.all()
 
 
-class AcademicDisciplineDetailView(generics.RetrieveUpdateDestroyAPIView):
+class AcademicDisciplineDetailView(generics.RetrieveDestroyAPIView):
     """
     (GET) Получение детальной информации по учебной дисциплине
-    (PUT) Обновление информации
     (DEL) Удаление
     """
     permission_classes = (permissions.IsAdminUser,)
@@ -35,7 +34,8 @@ class DirectionOfTrainingView(generics.ListCreateAPIView):
     (GET) Получение списка направлений подготовки
     (POST) Добавление направления подготовки
     """
-    permission_classes = (permissions.IsAdminUser,)
+    # todo проверить доступ
+    permission_classes = [permissions.IsAdminUser | IsCuratorReadOnly]
     queryset = DirectionOfTraining.objects.all()
     serializer_class = CreateDirectionOfTrainingSerializer
 
@@ -47,7 +47,7 @@ class DirectionOfTrainingView(generics.ListCreateAPIView):
 class DirectionOfTrainingDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     (GET) Получение детальной информации по направлению подготовки
-    (PUT) Добавление дисиплины в направление подготовки
+    (PUT) Добавление дисциплины в направление подготовки
     (DEL) Удаление направления подготовки
     """
     permission_classes = (permissions.IsAdminUser,)
@@ -67,23 +67,65 @@ class DirectionOfTrainingDetailView(generics.RetrieveUpdateDestroyAPIView):
         return self.get(request, *args, **kwargs)
 
 
-class DeleteDisciplineFromDirectionOfTrainingView(generics.RetrieveUpdateAPIView):
+class DeleteDisciplineFromDirectionOfTrainingView(generics.UpdateAPIView):
     """
-    (GET) Получение детальной информации по направлению подготовки
-    (PUT) Удаление дисиплины из направления подготовки
+    (PUT) Удаление дисциплины из направления подготовки
     """
     permission_classes = (permissions.IsAdminUser,)
     queryset = DirectionOfTraining.objects.all()
     serializer_class = AcademicDisciplineSerializer
     lookup_field = 'id'
 
-    def get(self, request, *args, **kwargs):
-        self.serializer_class = DirectionOfTrainingSerializer
-        return super().get(request, *args, **kwargs)
-
     def update(self, request, *args, **kwargs):
         try:
             self.get_object().disciplines.remove(AcademicDiscipline.objects.get(title=request.data["title"]))
         except AcademicDiscipline.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return self.get(request, *args, **kwargs)
+        return Response(status=status.HTTP_200_OK)
+
+
+class GroupsView(generics.ListCreateAPIView):
+    """
+    (GET) Получение списка групп
+    (POST) Добавление группы
+    """
+    # todo permission_classes
+    serializer_class = CreateGroupsSerializer
+    queryset = Group.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        self.serializer_class = GroupsSerializer
+        return super().get(request, *args, **kwargs)
+
+
+class GroupDetailView(generics.RetrieveDestroyAPIView):
+    """
+    (GET) Получение детальной информации по группе
+    (DEL) Удаление группы
+    """
+    # todo permission_classes
+    queryset = Group.objects.all()
+    serializer_class = GroupsSerializer
+    lookup_field = 'id'
+
+
+class StudentView(generics.ListCreateAPIView):
+    """
+    (GET) Получение списка студентов
+    (POST) Добавление студента
+    """
+    # todo permission_classes
+    # todo перегрузить post (макс. 20 студентов в группе)
+    serializer_class = StudentSerializer
+    queryset = Student.objects.all()
+
+
+class StudentDetailView(generics.RetrieveDestroyAPIView):
+    """
+    (GET) Получение детальной информации по студенту
+    (DEL) Удаление студента
+    """
+    # todo permission_classes
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'id'

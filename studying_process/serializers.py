@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from studying_process.models import AcademicDiscipline, DirectionOfTraining
+from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Student
 
 
 class AcademicDisciplineSerializer(serializers.ModelSerializer):
@@ -21,3 +21,23 @@ class CreateDirectionOfTrainingSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirectionOfTraining
         fields = ['id', 'title', 'curator']
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = '__all__'
+
+
+class GroupsSerializer(serializers.ModelSerializer):
+    students = StudentSerializer(many=True, source="get_students")
+
+    class Meta:
+        model = Group
+        fields = ['id', 'title', 'max_length', 'direction', 'students']
+
+
+class CreateGroupsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['title', 'direction']
