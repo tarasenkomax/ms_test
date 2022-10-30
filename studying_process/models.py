@@ -23,7 +23,7 @@ class Student(models.Model):
 
 class Group(models.Model):
     """ Учебная группа """
-    title = models.CharField(max_length=32, verbose_name="Название группы")
+    title = models.CharField(max_length=32, unique=True, verbose_name="Название группы")
     max_length = models.PositiveIntegerField(default=20, verbose_name='Максимальная длина группы')
     direction = models.ForeignKey('DirectionOfTraining', blank=True, null=True, on_delete=models.CASCADE,
                                   verbose_name='Направление подготовки')
@@ -38,7 +38,7 @@ class Group(models.Model):
 
 class AcademicDiscipline(models.Model):
     """ Учебная дисциплина """
-    title = models.CharField(max_length=32, verbose_name="Название дисциплины")
+    title = models.CharField(max_length=32, unique=True, verbose_name="Название дисциплины")
 
     def __str__(self):
         return self.title
@@ -50,8 +50,8 @@ class AcademicDiscipline(models.Model):
 
 class DirectionOfTraining(models.Model):
     """ Направление подготовки """
-    title = models.CharField(max_length=32, verbose_name="Название направления")
-    disciplines = models.ManyToManyField('AcademicDiscipline', blank=True, null=True, related_name="disciplines",
+    title = models.CharField(max_length=32, unique=True, verbose_name="Название направления")
+    disciplines = models.ManyToManyField('AcademicDiscipline', blank=True, null=True, related_name="discipline_list",
                                          verbose_name="Дисциплины")
     curator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Куратор')
 
