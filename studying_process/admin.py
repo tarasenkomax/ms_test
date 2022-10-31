@@ -5,6 +5,7 @@ from studying_process.models import Student, Group, AcademicDiscipline, Directio
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "is_curator")
+    list_display_links = ("id", "user", "is_curator")
     list_filter = ("is_curator",)
 
 

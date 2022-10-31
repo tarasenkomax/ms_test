@@ -88,7 +88,9 @@ class DirectionOfTraining(models.Model):
     def __str__(self):
         return self.title
 
-    #todo get_groups
+    def get_groups(self) -> QuerySet:
+        """ Получение всех групп для направления """
+        return Group.objects.filter(direction=self)
 
     class Meta:
         verbose_name_plural = "Направления подготовки"

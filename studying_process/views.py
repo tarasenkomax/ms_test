@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework import permissions
 from rest_framework.response import Response
 
-from settings.permissions import IsCuratorReadOnly
+from settings.permissions import IsCuratorReadOnly, IsCurator
 from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Student
 from studying_process.serializers import AcademicDisciplineSerializer, DirectionOfTrainingSerializer, \
     CreateDirectionOfTrainingSerializer, GroupsSerializer, CreateGroupsSerializer, StudentSerializer
@@ -34,7 +34,6 @@ class DirectionOfTrainingView(generics.ListCreateAPIView):
     (GET) Получение списка направлений подготовки
     (POST) Добавление направления подготовки
     """
-    # todo проверить доступ
     permission_classes = [permissions.IsAdminUser | IsCuratorReadOnly]
     queryset = DirectionOfTraining.objects.all()
     serializer_class = CreateDirectionOfTrainingSerializer
@@ -89,7 +88,7 @@ class GroupsView(generics.ListCreateAPIView):
     (GET) Получение списка групп
     (POST) Добавление группы
     """
-    # todo permission_classes
+    permission_classes = (IsCurator,)
     serializer_class = CreateGroupsSerializer
     queryset = Group.objects.all()
 
@@ -103,7 +102,7 @@ class GroupDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по группе
     (DEL) Удаление группы
     """
-    # todo permission_classes
+    permission_classes = (IsCurator,)
     queryset = Group.objects.all()
     serializer_class = GroupsSerializer
     lookup_field = 'id'
@@ -114,7 +113,7 @@ class StudentView(generics.ListCreateAPIView):
     (GET) Получение списка студентов
     (POST) Добавление студента
     """
-    # todo permission_classes
+    permission_classes = (IsCurator,)
     # todo перегрузить post (макс. 20 студентов в группе)
     serializer_class = StudentSerializer
     queryset = Student.objects.all()
@@ -125,7 +124,7 @@ class StudentDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по студенту
     (DEL) Удаление студента
     """
-    # todo permission_classes
+    permission_classes = (IsCurator,)
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'

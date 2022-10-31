@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     command: python manage.py runserver 0.0.0.0:8000
-#    entrypoint: wait-for db:5432 -- ./entrypoint.sh
+    entrypoint: wait-for db:5432 -- ./entrypoint.sh
     depends_on:
       - db
     ports:
