@@ -28,6 +28,14 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = '__all__'
 
+    def validate(self, data):
+        group = data.get('group')
+        count_students_in_group = group.get_students().count()
+        if count_students_in_group >= group.max_length:
+            raise serializers.ValidationError(
+                detail={'group': f'Максимальное количество студентов в группе:{group.max_length}'})
+        return data
+
 
 class GroupsSerializer(serializers.ModelSerializer):
     students = StudentSerializer(many=True, source="get_students")
