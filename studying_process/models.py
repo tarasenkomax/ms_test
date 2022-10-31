@@ -37,7 +37,7 @@ class Student(models.Model):
     name = models.CharField(max_length=32, verbose_name="Имя")
     surname = models.CharField(max_length=32, verbose_name="Фамилия")
     gender = models.CharField(max_length=16, choices=STUDENT_GENDER, verbose_name='Пол')
-    group = models.ForeignKey('Group', on_delete=models.CASCADE, verbose_name='Учебная группа')
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, related_name='students', verbose_name='Учебная группа')
 
     def __str__(self):
         return f"{self.surname} {self.name}"
