@@ -9,8 +9,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_curator = models.BooleanField(default=False, verbose_name="Куратор")
 
-    def __str__(self):
-        return f"{self.user.username}"
+    def __str__(self) -> str:
+        return self.user.username
 
     class Meta:
         verbose_name_plural = "Профили"
@@ -39,7 +39,7 @@ class Student(models.Model):
     gender = models.CharField(max_length=16, choices=STUDENT_GENDER, verbose_name='Пол')
     group = models.ForeignKey('Group', on_delete=models.CASCADE, related_name='students', verbose_name='Учебная группа')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.surname} {self.name}"
 
     class Meta:
@@ -54,7 +54,7 @@ class Group(models.Model):
     direction = models.ForeignKey('DirectionOfTraining', on_delete=models.CASCADE,
                                   verbose_name='Направление подготовки')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
     def get_students(self) -> QuerySet:
@@ -70,7 +70,7 @@ class AcademicDiscipline(models.Model):
     """ Учебная дисциплина """
     title = models.CharField(max_length=32, unique=True, verbose_name="Название дисциплины")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
     class Meta:
@@ -85,7 +85,7 @@ class DirectionOfTraining(models.Model):
                                          verbose_name="Дисциплины")
     curator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='curator', verbose_name='Куратор')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
     def get_groups(self) -> QuerySet:
