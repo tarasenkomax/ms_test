@@ -2,7 +2,7 @@ from django.urls import path
 
 from studying_process.views import AcademicDisciplineView, AcademicDisciplineDetailView, DirectionOfTrainingView, \
     DirectionOfTrainingDetailView, DeleteDisciplineFromDirectionOfTrainingView, GroupsView, GroupDetailView, \
-    StudentView, StudentDetailView
+    StudentView, StudentDetailView, CreateReportView
 
 app_name = "studying_process"
 
@@ -21,5 +21,6 @@ urlpatterns = [
 
     path('students/', StudentView.as_view(), name='student_list'),
     path('students/<int:id>/', StudentDetailView.as_view(), name='student_detail'),
+    path('report/', CreateReportView.as_view(), name='create_report'),
 
 ]

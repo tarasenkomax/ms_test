@@ -1,11 +1,15 @@
+import datetime
+
 from rest_framework import generics, status
 from rest_framework import permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from settings.permissions import IsCuratorReadOnly, IsCurator
 from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Student
 from studying_process.serializers import AcademicDisciplineSerializer, DirectionOfTrainingSerializer, \
     CreateDirectionOfTrainingSerializer, GroupsSerializer, CreateGroupsSerializer, StudentSerializer
+from studying_process.tasks import create_report
 
 
 class AcademicDisciplineView(generics.ListCreateAPIView):
@@ -88,7 +92,7 @@ class GroupsView(generics.ListCreateAPIView):
     (GET) Получение списка групп
     (POST) Добавление группы
     """
-    permission_classes = (IsCurator,)
+    # permission_classes = (IsCurator,)
     serializer_class = CreateGroupsSerializer
     queryset = Group.objects.all()
 
@@ -102,7 +106,7 @@ class GroupDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по группе
     (DEL) Удаление группы
     """
-    permission_classes = (IsCurator,)
+    # permission_classes = (IsCurator,)
     queryset = Group.objects.all()
     serializer_class = GroupsSerializer
     lookup_field = 'id'
@@ -113,8 +117,7 @@ class StudentView(generics.ListCreateAPIView):
     (GET) Получение списка студентов
     (POST) Добавление студента
     """
-    permission_classes = (IsCurator,)
-    # todo перегрузить post (макс. 20 студентов в группе)
+    # permission_classes = (IsCurator,)
     serializer_class = StudentSerializer
     queryset = Student.objects.all()
 
@@ -124,7 +127,17 @@ class StudentDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по студенту
     (DEL) Удаление студента
     """
-    permission_classes = (IsCurator,)
+    # permission_classes = (IsCurator,)
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'
+
+
+class CreateReportView(APIView):
+    permission_classes = (permissions.IsAdminUser,)
+
+    def get(self, request):
+        print(datetime.datetime.now().time())
+        create_report()
+        print(datetime.datetime.now().time())
+        return Response(status=status.HTTP_204_NO_CONTENT)

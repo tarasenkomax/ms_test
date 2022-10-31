@@ -13,9 +13,29 @@ services:
     ports:
       - '15432:5432'
 
+  redis:
+    image: redis:alpine
+
+  celery:
+    build: .
+    command: celery -A settings worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A settings beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
   backend:
     build: .
-#    restart: always
+    #    restart: always
     env_file:
       - .env
     command: python manage.py runserver 0.0.0.0:8000
