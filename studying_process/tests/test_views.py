@@ -24,6 +24,7 @@ class AcademicDisciplineViewTest(TestCase):
         self.client.login(username='test', password='Some_password123')
         resp = self.client.get('/api/academic_disciplines/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data), 2)
 
     def test_view_url_accessible_by_name_for_admin(self):
         self.client.login(username='test', password='Some_password123')
@@ -40,3 +41,45 @@ class AcademicDisciplineViewTest(TestCase):
         self.client.post(reverse('studying_process:academic_disciplines_list'), data=json.dumps({'title': 'Алгебра'}),
                          content_type='application/json')
         self.assertTrue(AcademicDiscipline.objects.filter(title='Алгебра').exists())
+
+
+class AcademicDisciplineDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        AcademicDiscipline.objects.create(title='Математика')
+        AcademicDiscipline.objects.create(title='Физика')
+        admin = get_user_model().objects.create_user(username='test', password='Some_password123', first_name='Иван',
+                                                     last_name='Иванов', is_staff=True)
+        curator = get_user_model().objects.create_user(username='test_2', password='Some_password123',
+                                                       first_name='Андрей', last_name='Андреев')
+        curator.profile.is_curator = True
+
+    def test_view_url_exists_at_desired_location_for_admin(self):
+        discipline = AcademicDiscipline.objects.get(title='Физика')
+        self.client.login(username='test', password='Some_password123')
+        resp = self.client.get(f'/api/academic_disciplines/{discipline.id}/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_url_accessible_by_name_for_admin(self):
+        discipline = AcademicDiscipline.objects.get(title='Физика')
+        self.client.login(username='test', password='Some_password123')
+        resp = self.client.get(reverse('studying_process:academic_discipline_detail', kwargs={'id': discipline.id}))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_url_exists_at_desired_location_for_curator(self):
+        discipline = AcademicDiscipline.objects.get(title='Физика')
+        self.client.login(username='test_2', password='Some_password123')
+        resp = self.client.get(f'/api/academic_disciplines/{discipline.id}/')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_view_url_accessible_by_name_for_curator(self):
+        discipline = AcademicDiscipline.objects.get(title='Физика')
+        self.client.login(username='test_2', password='Some_password123')
+        resp = self.client.get(reverse('studying_process:academic_discipline_detail', kwargs={'id': discipline.id}))
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete(self):
+        discipline = AcademicDiscipline.objects.get(title='Физика')
+        self.client.login(username='test', password='Some_password123')
+        self.client.delete(reverse('studying_process:academic_discipline_detail', kwargs={'id': discipline.id}))
+        self.assertFalse(AcademicDiscipline.objects.filter(title='Физика').exists())
