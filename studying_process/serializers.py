@@ -49,3 +49,10 @@ class CreateGroupsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['title', 'direction']
+
+
+class CheckTaskStatusSerializer(serializers.Serializer):
+    task_id = serializers.CharField()
+
+    class Meta:
+        fields = ['task_id', ]

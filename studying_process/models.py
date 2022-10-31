@@ -81,9 +81,9 @@ class AcademicDiscipline(models.Model):
 class DirectionOfTraining(models.Model):
     """ Направление подготовки """
     title = models.CharField(max_length=32, unique=True, verbose_name="Название направления")
-    disciplines = models.ManyToManyField('AcademicDiscipline', blank=True, null=True, related_name="discipline_list",
+    disciplines = models.ManyToManyField('AcademicDiscipline', blank=True, null=True, related_name="disciplines",
                                          verbose_name="Дисциплины")
-    curator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Куратор')
+    curator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='curator', verbose_name='Куратор')
 
     def __str__(self):
         return self.title

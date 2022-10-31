@@ -1,5 +1,4 @@
-import datetime
-
+from celery.result import AsyncResult
 from rest_framework import generics, status
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -8,7 +7,8 @@ from rest_framework.views import APIView
 from settings.permissions import IsCuratorReadOnly, IsCurator
 from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Student
 from studying_process.serializers import AcademicDisciplineSerializer, DirectionOfTrainingSerializer, \
-    CreateDirectionOfTrainingSerializer, GroupsSerializer, CreateGroupsSerializer, StudentSerializer
+    CreateDirectionOfTrainingSerializer, GroupsSerializer, CreateGroupsSerializer, StudentSerializer, \
+    CheckTaskStatusSerializer
 from studying_process.tasks import create_report
 
 
@@ -92,7 +92,7 @@ class GroupsView(generics.ListCreateAPIView):
     (GET) Получение списка групп
     (POST) Добавление группы
     """
-    # permission_classes = (IsCurator,)
+    permission_classes = (IsCurator,)
     serializer_class = CreateGroupsSerializer
     queryset = Group.objects.all()
 
@@ -106,7 +106,7 @@ class GroupDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по группе
     (DEL) Удаление группы
     """
-    # permission_classes = (IsCurator,)
+    permission_classes = (IsCurator,)
     queryset = Group.objects.all()
     serializer_class = GroupsSerializer
     lookup_field = 'id'
@@ -117,7 +117,7 @@ class StudentView(generics.ListCreateAPIView):
     (GET) Получение списка студентов
     (POST) Добавление студента
     """
-    # permission_classes = (IsCurator,)
+    permission_classes = (IsCurator,)
     serializer_class = StudentSerializer
     queryset = Student.objects.all()
 
@@ -127,17 +127,25 @@ class StudentDetailView(generics.RetrieveDestroyAPIView):
     (GET) Получение детальной информации по студенту
     (DEL) Удаление студента
     """
-    # permission_classes = (IsCurator,)
+    permission_classes = (IsCurator,)
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'
 
 
 class CreateReportView(APIView):
+    """
+    (GET) Сформировать отчет администратора
+    (POST) Узнать статус задачи по формированию отчета
+    """
     permission_classes = (permissions.IsAdminUser,)
+    serializer_class = CheckTaskStatusSerializer
 
-    def get(self, request):
-        print(datetime.datetime.now().time())
-        create_report()
-        print(datetime.datetime.now().time())
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def get(self, request, *args, **kwargs):
+        task = create_report.delay()
+        return Response(data={'task_id': task.task_id}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        res = AsyncResult(request.data['task_id'])
+        data = {'task_id': request.data['task_id'], 'status': res.ready()}
+        return Response(data=data, status=status.HTTP_200_OK)
