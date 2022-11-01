@@ -392,6 +392,17 @@ class StudentViewTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
         self.assertFalse(Student.objects.filter(surname='Тестовый').exists())
 
+    def test_max_length_in_group(self):
+        self.client.login(username='curator', password='Some_password123')
+        group = Group.objects.get(title='Группа 1')
+        for i in range(group.max_length):
+            Student.objects.create(name=f'name_{i}', surname=f's_{i}', gender='man', group=group)
+        resp = self.client.post(reverse(self.generated_url), data=json.dumps(
+            {'name': 'Тест', 'surname': 'Тестовый', 'gender': 'man', 'group': group.id}),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(str(resp.data['group'][0]), f'Максимальное количество студентов в группе:{group.max_length}')
+
 
 class StudentDetailViewTest(TestCase):
     url = '/api/students/'
@@ -439,28 +450,27 @@ class StudentDetailViewTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Student.objects.filter(name='Иван').exists())
 
+    class CreateReportViewTest(TestCase):
+        url = '/api/report/'
+        generated_url = 'studying_process:create_report'
 
-class CreateReportViewTest(TestCase):
-    url = '/api/report/'
-    generated_url = 'studying_process:create_report'
+        @classmethod
+        def setUpTestData(cls):
+            admin = get_user_model().objects.create_user(username='admin', password='Some_password123', is_staff=True)
+            curator = get_user_model().objects.create_user(username='curator', password='Some_password123')
+            Profile.objects.filter(user=curator).update(is_curator=True)
 
-    @classmethod
-    def setUpTestData(cls):
-        admin = get_user_model().objects.create_user(username='admin', password='Some_password123', is_staff=True)
-        curator = get_user_model().objects.create_user(username='curator', password='Some_password123')
-        Profile.objects.filter(user=curator).update(is_curator=True)
+        def test_view_url_exists_at_desired_location_for_admin(self):
+            self.client.login(username='admin', password='Some_password123')
+            resp = self.client.get(self.url)
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_view_url_exists_at_desired_location_for_admin(self):
-        self.client.login(username='admin', password='Some_password123')
-        resp = self.client.get(self.url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        def test_view_url_accessible_by_name_for_admin(self):
+            self.client.login(username='admin', password='Some_password123')
+            resp = self.client.get(reverse(self.generated_url))
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_view_url_accessible_by_name_for_admin(self):
-        self.client.login(username='admin', password='Some_password123')
-        resp = self.client.get(reverse(self.generated_url))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
-    def test_view_url_accessible_by_name_for_curator(self):
-        self.client.login(username='curator', password='Some_password123')
-        resp = self.client.get(reverse(self.generated_url))
-        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        def test_view_url_accessible_by_name_for_curator(self):
+            self.client.login(username='curator', password='Some_password123')
+            resp = self.client.get(reverse(self.generated_url))
+            self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
