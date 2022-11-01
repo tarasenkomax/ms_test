@@ -26,26 +26,26 @@ SECRET_KEY = 'django-insecure-o9^=simspsnsc#qqpwo6-ezw81kb$4&d1qacve__6h7jgf(t^i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-if DEBUG:
-    LOGGING = {
-        'disable_existing_loggers': False,
-        'version': 1,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'level': 'DEBUG',
-            },
-        },
-        'loggers': {
-            'django.db.backends': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'django.db': {
-            },
-        },
-    }
+# if DEBUG:
+#     LOGGING = {
+#         'disable_existing_loggers': False,
+#         'version': 1,
+#         'handlers': {
+#             'console': {
+#                 'class': 'logging.StreamHandler',
+#                 'level': 'DEBUG',
+#             },
+#         },
+#         'loggers': {
+#             'django.db.backends': {
+#                 'handlers': ['console'],
+#                 'level': 'DEBUG',
+#                 'propagate': False,
+#             },
+#             'django.db': {
+#             },
+#         },
+#     }
 
 ALLOWED_HOSTS = []
 
