@@ -16,7 +16,7 @@ urlpatterns = [
     path('direction_of_training/', DirectionOfTrainingView.as_view(), name='direction_of_training_list'),
     path('direction_of_training/<int:id>/', DirectionOfTrainingDetailView.as_view(),
          name='direction_of_training_detail'),
-    path('direction_of_training/<int:id>/delete_discipline', DeleteDisciplineFromDirectionOfTrainingView.as_view(),
+    path('direction_of_training/<int:id>/delete_discipline/', DeleteDisciplineFromDirectionOfTrainingView.as_view(),
          name='del_discipline_from_direction_of_training'),
 
     path('students/', StudentView.as_view(), name='student_list'),
