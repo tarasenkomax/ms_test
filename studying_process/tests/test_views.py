@@ -3,7 +3,6 @@ import json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.test import TestCase
-
 from django.urls import reverse
 from rest_framework import status
 
@@ -439,3 +438,29 @@ class StudentDetailViewTest(TestCase):
         resp = self.client.delete(reverse(self.generated_url, kwargs={'id': student.id}))
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Student.objects.filter(name='Иван').exists())
+
+
+class CreateReportViewTest(TestCase):
+    url = '/api/report/'
+    generated_url = 'studying_process:create_report'
+
+    @classmethod
+    def setUpTestData(cls):
+        admin = get_user_model().objects.create_user(username='admin', password='Some_password123', is_staff=True)
+        curator = get_user_model().objects.create_user(username='curator', password='Some_password123')
+        Profile.objects.filter(user=curator).update(is_curator=True)
+
+    def test_view_url_exists_at_desired_location_for_admin(self):
+        self.client.login(username='admin', password='Some_password123')
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_url_accessible_by_name_for_admin(self):
+        self.client.login(username='admin', password='Some_password123')
+        resp = self.client.get(reverse(self.generated_url))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_url_accessible_by_name_for_curator(self):
+        self.client.login(username='curator', password='Some_password123')
+        resp = self.client.get(reverse(self.generated_url))
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
