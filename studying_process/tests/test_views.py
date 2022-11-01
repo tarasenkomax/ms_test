@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 
-from studying_process.models import AcademicDiscipline, DirectionOfTraining
+from studying_process.models import AcademicDiscipline, DirectionOfTraining, Group, Profile
 
 
 class AcademicDisciplineViewTest(TestCase):
@@ -20,7 +20,7 @@ class AcademicDisciplineViewTest(TestCase):
         AcademicDiscipline.objects.create(title='Физика')
         admin = get_user_model().objects.create_user(username='test', password='Some_password123', is_staff=True)
         curator = get_user_model().objects.create_user(username='test_2', password='Some_password123')
-        curator.profile.is_curator = True
+        Profile.objects.filter(user=curator).update(is_curator=True)
 
     def test_view_url_exists_at_desired_location_for_admin(self):
         self.client.login(username='test', password='Some_password123')
@@ -62,7 +62,7 @@ class AcademicDisciplineDetailViewTest(TestCase):
         AcademicDiscipline.objects.create(title='Физика')
         admin = get_user_model().objects.create_user(username='test', password='Some_password123', is_staff=True)
         curator = get_user_model().objects.create_user(username='test_2', password='Some_password123')
-        curator.profile.is_curator = True
+        Profile.objects.filter(user=curator).update(is_curator=True)
 
     def test_view_url_exists_at_desired_location_for_admin(self):
         discipline = AcademicDiscipline.objects.get(title='Физика')
@@ -111,7 +111,7 @@ class DirectionOfTrainingViewTest(TestCase):
     def setUpTestData(cls):
         admin = get_user_model().objects.create_user(username='test', password='Some_password123', is_staff=True)
         curator = get_user_model().objects.create_user(username='test_2', password='Some_password123')
-        curator.profile.is_curator = True
+        Profile.objects.filter(user=curator).update(is_curator=True)
         DirectionOfTraining.objects.create(title='Направление 1', curator=curator)
         DirectionOfTraining.objects.create(title='Направление 2', curator=curator)
         DirectionOfTraining.objects.create(title='Направление 3', curator=curator)
@@ -127,10 +127,10 @@ class DirectionOfTrainingViewTest(TestCase):
         resp = self.client.get(reverse(self.generated_url))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # def test_view_url_accessible_by_name_for_curator(self):
-    #     self.client.login(username='test_2', password='Some_password123')
-    #     resp = self.client.get(reverse(self.generated_url))
-    #     self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    def test_view_url_accessible_by_name_for_curator(self):
+        self.client.login(username='test_2', password='Some_password123')
+        resp = self.client.get(reverse(self.generated_url))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_post_for_admin(self):
         user = User.objects.get(username='test')
@@ -156,7 +156,7 @@ class DirectionOfTrainingDetailViewTest(TestCase):
     def setUpTestData(cls):
         admin = get_user_model().objects.create_user(username='test', password='Some_password123', is_staff=True)
         curator = get_user_model().objects.create_user(username='test_2', password='Some_password123')
-        curator.profile.is_curator = True
+        Profile.objects.filter(user=curator).update(is_curator=True)
         DirectionOfTraining.objects.create(title='Направление 1', curator=curator)
 
     def test_view_url_exists_at_desired_location_for_admin(self):
@@ -229,7 +229,7 @@ class DeleteDisciplineFromDirectionOfTrainingViewTest(TestCase):
     def setUpTestData(cls):
         admin = get_user_model().objects.create_user(username='test', password='Some_password123', is_staff=True)
         curator = get_user_model().objects.create_user(username='test_2', password='Some_password123')
-        curator.profile.is_curator = True
+        Profile.objects.filter(user=curator).update(is_curator=True)
         discipline = AcademicDiscipline.objects.create(title='История')
         direction = DirectionOfTraining.objects.create(title='Направление 1', curator=curator)
         direction.disciplines.add(discipline)
@@ -261,3 +261,51 @@ class DeleteDisciplineFromDirectionOfTrainingViewTest(TestCase):
         resp = self.client.put(reverse(self.generated_url, kwargs={'id': direction.id}),
                                data=json.dumps({'title': 'История'}), content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class GroupViewTest(TestCase):
+    url = '/api/groups/'
+    generated_url = 'studying_process:groups_list'
+
+    @classmethod
+    def setUpTestData(cls):
+        admin = get_user_model().objects.create_user(username='admin', password='Some_password123', is_staff=True)
+        curator = get_user_model().objects.create_user(username='curator', password='Some_password123')
+        Profile.objects.filter(user=curator).update(is_curator=True)
+        direction = DirectionOfTraining.objects.create(title='Направление 1', curator=curator)
+        Group.objects.create(title='Группа 1', direction=direction)
+        Group.objects.create(title='Группа 2', direction=direction)
+
+    def test_view_url_exists_at_desired_location_for_curator(self):
+        self.client.login(username='curator', password='Some_password123')
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data), 2)
+
+    def test_view_url_accessible_by_name_for_curator(self):
+        self.client.login(username='curator', password='Some_password123')
+        resp = self.client.get(reverse(self.generated_url))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_view_url_accessible_by_name_for_admin(self):
+        self.client.login(username='admin', password='Some_password123')
+        resp = self.client.get(reverse(self.generated_url))
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_for_curator(self):
+        self.client.login(username='curator', password='Some_password123')
+        direction = DirectionOfTraining.objects.get(title='Направление 1')
+        resp = self.client.post(reverse(self.generated_url),
+                                data=json.dumps({'title': 'Гр.1', 'direction': direction.id}),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Group.objects.filter(title='Гр.1').exists())
+
+    def test_post_for_admin(self):
+        self.client.login(username='admin', password='Some_password123')
+        direction = DirectionOfTraining.objects.get(title='Направление 1')
+        resp = self.client.post(reverse(self.generated_url),
+                                data=json.dumps({'title': 'Гр.1', 'direction': direction.id}),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Group.objects.filter(title='Гр.1').exists())
