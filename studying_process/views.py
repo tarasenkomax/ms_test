@@ -143,7 +143,7 @@ class CreateReportView(APIView):
 
     def get(self, request, *args, **kwargs):
         task = create_report.delay()
-        return Response(data={'task_id': task.task_id}, status=status.HTTP_200_OK)
+        return Response(data={'task_id': task.task_id}, status=status.HTTP_202_ACCEPTED)
 
     def post(self, request, *args, **kwargs):
         res = AsyncResult(request.data['task_id'])
