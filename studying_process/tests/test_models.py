@@ -34,9 +34,9 @@ class GroupModelTest(TestCase):
         group = Group.objects.get(title='Группа 1')
         self.assertEquals(group.__str__(), 'Группа 1')
 
-    def test_get_student(self):
+    def test_get_student_count(self):
         group = Group.objects.get(title='Группа 1')
-        self.assertEquals(len(group.get_students()), 2)
+        self.assertEquals(group.get_students_count(), 2)
 
 
 class AcademicDisciplineModelTest(TestCase):
@@ -65,7 +65,4 @@ class DirectionOfTrainingModelTest(TestCase):
         direction = DirectionOfTraining.objects.get(title='Направление 1', )
         self.assertEquals(direction.__str__(), 'Направление 1')
 
-    def test_get_groups(self):
-        direction = DirectionOfTraining.objects.get(title='Направление 1', )
-        self.assertEquals(len(direction.get_groups()), 2)
 

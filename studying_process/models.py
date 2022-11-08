@@ -57,9 +57,9 @@ class Group(models.Model):
     def __str__(self) -> str:
         return self.title
 
-    def get_students(self) -> QuerySet:
-        """ Получение всех студентов группы """
-        return Student.objects.filter(group=self)
+    def get_students_count(self) -> QuerySet:
+        """ Получение количества студентов в группе """
+        return Student.objects.filter(group=self).count()
 
     class Meta:
         verbose_name_plural = "Учебные группы"
@@ -88,9 +88,6 @@ class DirectionOfTraining(models.Model):
     def __str__(self) -> str:
         return self.title
 
-    def get_groups(self) -> QuerySet:
-        """ Получение всех групп для направления """
-        return Group.objects.filter(direction=self)
 
     class Meta:
         verbose_name_plural = "Направления подготовки"
