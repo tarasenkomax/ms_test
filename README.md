@@ -6,8 +6,14 @@
 2. Собрать контейнер `docker-compose build`
 3. Запустить контейнер `docker-compose up`
 
-### Схема БД
+#### Схема БД
 https://dbdiagram.io/d/635ee6cc5170fb6441c3a569
+
+#### Swagger
+http://localhost:8000/docs/
+
+#### Flower
+http://localhost:5555/tasks
 
 ### Задание
 Реализовать веб-сервис для организации учебного процесса в ВУЗе.  

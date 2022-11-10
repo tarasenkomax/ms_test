@@ -147,5 +147,5 @@ class CreateReportView(APIView):
 
     def post(self, request, *args, **kwargs):
         res = AsyncResult(request.data['task_id'])
-        data = {'task_id': request.data['task_id'], 'status': res.ready()}
+        data = {'task_id': request.data['task_id'], 'status': res.ready(), 'result': res.result}
         return Response(data=data, status=status.HTTP_200_OK)

@@ -7,3 +7,4 @@ def create_report():
     """ Создание .xlsx отчета администратора """
     excel = ExcelFile()
     excel.add_direction_of_training().add_groups().save_file()
+    return f"/app/{excel.filename}.xlsx"
