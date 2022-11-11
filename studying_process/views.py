@@ -39,7 +39,7 @@ class DirectionOfTrainingView(generics.ListCreateAPIView):
     (POST) Добавление направления подготовки
     """
     permission_classes = [permissions.IsAdminUser | IsCuratorReadOnly]
-    queryset = DirectionOfTraining.objects.all()
+    queryset = DirectionOfTraining.objects.prefetch_related('disciplines').all()
     serializer_class = CreateDirectionOfTrainingSerializer
 
     def get(self, request, *args, **kwargs):
@@ -94,7 +94,7 @@ class GroupsView(generics.ListCreateAPIView):
     """
     permission_classes = (IsCurator,)
     serializer_class = CreateGroupsSerializer
-    queryset = Group.objects.all()
+    queryset = Group.objects.prefetch_related('students').all()
 
     def get(self, request, *args, **kwargs):
         self.serializer_class = GroupsSerializer
@@ -107,7 +107,7 @@ class GroupDetailView(generics.RetrieveDestroyAPIView):
     (DEL) Удаление группы
     """
     permission_classes = (IsCurator,)
-    queryset = Group.objects.all()
+    queryset = Group.objects.prefetch_related('students').all()
     serializer_class = GroupsSerializer
     lookup_field = 'id'
 
