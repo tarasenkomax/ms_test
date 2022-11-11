@@ -6,27 +6,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-o9^=simspsnsc#qqpwo6-ezw81kb$4&d1qacve__6h7jgf(t^i'
 DEBUG = True
 
-# if DEBUG:
-#     LOGGING = {
-#         'disable_existing_loggers': False,
-#         'version': 1,
-#         'handlers': {
-#             'console': {
-#                 'class': 'logging.StreamHandler',
-#                 'level': 'DEBUG',
-#             },
-#         },
-#         'loggers': {
-#             'django.db.backends': {
-#                 'handlers': ['console'],
-#                 'level': 'DEBUG',
-#                 'propagate': False,
-#             },
-#             'django.db': {
-#             },
-#         },
-#     }
-
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
@@ -40,6 +19,7 @@ INSTALLED_APPS = [
     # 3rd
     'rest_framework',
     'drf_yasg',
+    "debug_toolbar",
 
     # my_apps
     'studying_process',
@@ -53,6 +33,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'settings.urls'
@@ -115,7 +96,21 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# celety
 CELERY_TIMEZONE = "Europe/Moscow"
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+# django debug toolbar
+
+INTERNAL_IPS = ["0.0.0.0", ]
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+}
